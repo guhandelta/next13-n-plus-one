@@ -4,3 +4,4 @@
 |n-plus-one (cached) | 1.4240 |
 |n-plus-one-cache | 1.8945 |
 |n-plus-one-aggregated | 0.6695 |
+|n-plus-one-aggregated-client | 0.8703 |
