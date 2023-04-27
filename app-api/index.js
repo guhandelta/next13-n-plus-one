@@ -1,6 +1,6 @@
 const express = require("express");
 
-const iphones = require("./iphone-list.json");
+const iphones = require("./phone-list.json");
 
 const app = express();
 
