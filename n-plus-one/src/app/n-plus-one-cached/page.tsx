@@ -1,13 +1,23 @@
-import { IPhone } from '@/types';
+import { cache } from 'react';
 import Image from 'next/image'
 
-const PhoneCard = async ({identifier} : {identifier: string}) =>{
+import { IPhone } from '@/types';
 
+// Wrapping a fetch() within a cache() is very unoptimal and makes the page very slow
+const cachedGetPhonelist = cache(async () =>{
+  const identifiersReq = await fetch("http://localhost:8080/");
+  return (await identifiersReq.json()) as string[]
+})
+
+const cachedGetPhoneById = cache(async (identifier: string) => {
+  const phoneReq = await fetch(`http://localhost:8080/${identifier}`)
+  return (await phoneReq.json()) as IPhone})
+
+const PhoneCard = async ({identifier} : {identifier: string}) =>{
+  const phone = await cachedGetPhoneById(identifier);
 /*This is the N requests made to fetch the data of each phone for each individual phone cards, where the +1 req
 was the original req made to fetch all the identifiers of the available phones => N+1 problem*/  
 
-const phoneReq = await fetch(`http://localhost:8080/${identifier}`);
-const phone = (await phoneReq.json()) as IPhone;
 
 // The PhoneCard component is an async as it had to go fetch the data it has to display on the card
   return(
@@ -53,15 +63,7 @@ const Phones = ({identifiers} : { identifiers: string[] }) => {
 
 export default async function Home() {
 
-  /*This makes 1 request to get all the iPhones, which is the +1, while the N requests are made while fetching 
-  the data of each phone for each phone card => N+1  */
-
-  // The Home app is an async as fetch() is used within
-  // Fetch all the id's 
-  // NextJS aggresively caches every requests, so not to repeat it again, {cache: "no-cache"} turns it off
-  const identifiersReq = await fetch("http://localhost:8080/", { cache: "no-cache" });
-  // Get those identifiers/id's as an array of strings
-  const identifiers = (await identifiersReq.json()) as string[];
+  const identifiers = await cachedGetPhonelist();
 
   return (
     <main className="text-white grid md:grid-cols-3">
